@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const PORT = process.env.PORT || 3000;
 
-const db = require("./public/JS");
+const db = require("./models");
 
 const app = express();
 
@@ -15,28 +15,57 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/populate", {
-	useNewUrlParser: true,
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutdb", {useNewUrlParser: true,});
+
+app.get("/workouts", (req, res) => {
+  db.Workout.find({})
+    .then(dbWorkout => {
+      res.json(dbWorkout);	
+    })
+    .catch(err => {
+      res.json(err);
+	});
 });
 
-//ROUTES
+  app.get("/api/workouts/:id", (req, res) => {
+    // Find one Workout with the id in req.params.id and return them to the user with res.json
+    db.Workout.findOne({
+      where: {
+        id: req.params.id
+      }
+    }).then(dbWorkout => {
+      res.json(dbWorkout);
+	})
+	.catch(err => {
+		res.json(err);
+	});
+  });
 
-//POST - Previous Workout
+  app.post("/api/workouts", (req, res) => {
+    // Create a Workout with the data available to us in req.body
+    console.log(req.body);
+    db.Workout.create(req.body).then(function(dbWorkout) {
+      res.json(dbWorkout);
+	})
+	.catch(err => {
+		res.json(err);
+	});
+  });
 
-//POST - New Workout
+  app.delete("/api/workouts/:id", (req, res) => {
+    // Delete the Workouts with the id available to us in req.params.id
+    db.Workout.destroy({
+      where: {
+        id: req.params.id
+      }
+    }).then(function(dbWorkout) {
+      res.json(dbWorkout);
+	})
+	.catch(err => {
+		res.json(err);
+	});
+  });
 
-//COMBO - Stats
-
-app.get("/populateduser", (req, res) => {
-	db.User.find({})
-		.populate("notes")
-		.then((dbUser) => {
-			res.json(dbUser);
-		})
-		.catch((err) => {
-			res.json(err);
-		});
-});
 
 app.listen(PORT, () => {
 	console.log(`App running on port ${PORT}!`);
