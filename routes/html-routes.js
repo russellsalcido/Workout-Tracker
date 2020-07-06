@@ -23,7 +23,6 @@ module.exports = function(app) {
   });
 
   // stats route loads exercise.html
-
   app.get("/stats", function(req, res) {
     res.sendFile(path.join(__dirname, "../public/stats.html"));
   });
